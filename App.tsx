@@ -1,130 +1,116 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
 import {
-  ScrollView,
-  StatusBar,
+  ActivityIndicator,
+  FlatList,
+  SafeAreaView,
   StyleSheet,
   Text,
-  useColorScheme,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import axios from 'axios';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+type itemType = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  website: string;
+};
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+type renderProps = {
+  item: itemType;
+};
+const renderItem = ({item}: renderProps) => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.listItemCard}>
+      <Text style={styles.name}>{item.name}</Text>
+      <Text>{item.email}</Text>
+      <Text>{item.phone}</Text>
+      <Text>{item.website}</Text>
     </View>
   );
-}
+};
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+const App = () => {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        'https://jsonplaceholder.typicode.com/users',
+      ); // Verileri çekmek için await kullanıyoruz
+      setUserData(response.data);
+    } catch (error) {
+      console.error('Hata oluştu:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  /*
-   * To keep the template simple and small we're adding padding to prevent view
-   * from rendering under the System UI.
-   * For bigger apps the recommendation is to use `react-native-safe-area-context`:
-   * https://github.com/AppAndFlow/react-native-safe-area-context
-   *
-   * You can read more about it here:
-   * https://github.com/react-native-community/discussions-and-proposals/discussions/827
-   */
-  const safePadding = '5%';
-
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
-        </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+    <SafeAreaView>
+      <TouchableOpacity style={styles.button} onPress={fetchUsers}>
+        <Text style={styles.text}>Get users</Text>
+      </TouchableOpacity>
+      {loading ? (
+        <ActivityIndicator size="large" color="coral" />
+      ) : (
+        <FlatList data={userData} renderItem={({item}) => renderItem({item})} />
+      )}
+    </SafeAreaView>
   );
-}
+};
+
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  button: {
+    borderColor: 'coral',
+    borderWidth: 1,
+    margin: 64,
+    borderRadius: 8,
+    backgroundColor: 'coral',
+    shadowColor: 'coral',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.3,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  text: {
+    justifyContent: 'center',
+    textAlign: 'center',
+    fontSize: 28,
+    color: 'white',
   },
-  sectionDescription: {
-    marginTop: 8,
+  listItem: {
     fontSize: 18,
-    fontWeight: '400',
+    padding: 10,
+    borderBottomColor: '#ddd',
+    borderWidth: 1,
+    color: 'gray',
   },
-  highlight: {
-    fontWeight: '700',
+  listItemCard: {
+    backgroundColor: 'white',
+    margin: 10,
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: 'coral',
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  name: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: 'gray',
   },
 });
 
