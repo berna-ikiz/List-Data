@@ -46,7 +46,7 @@ const App = () => {
     try {
       const response = await axios.get(
         'https://jsonplaceholder.typicode.com/users',
-      ); // Verileri çekmek için await kullanıyoruz
+      ); //get data with axios
       setUserData(response.data);
     } catch (error) {
       console.error('Hata oluştu:', error);
